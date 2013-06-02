@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Equation Plotting</title>
+</head>
+<body>
+    <h1><strong>Equation Plotting</strong> in Javascript</h1>
+    <p></p>
+
+    <div class="demo">
+        <input type="text" value="" placeholder="y=x^2">
+        <input id="demo" type="button" value="plot it!">
+        <canvas></canvas>
+    </div>
+
+    <script src="src/EP.js"></script>
+    <script>
+        var demo = document.getElementById('demo');
+        demo.onclick = function() {
+            EP(demo.previousElementSibling.value)
+                .rendTo(demo.nextElementSibling, true);
+        }
+    </script>
+</body>
+</html>
