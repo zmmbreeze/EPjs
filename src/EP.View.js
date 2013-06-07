@@ -43,12 +43,14 @@
         var ctx = this._ctx;
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
+        ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.arc(x, y, radius / 2, 0, 360);
         ctx.fill();
         ctx.moveTo(x + radius, y);
         ctx.arc(x, y, radius, 0, 360);
         ctx.stroke();
+        ctx.closePath();
     };
 
     /**
@@ -117,6 +119,7 @@
             ctx.lineTo(viewX, viewY - viewN);
             ctx.lineTo(viewX - viewM_2, viewY);
             ctx.fill();
+            ctx.closePath();
             break;
         case 'down':
             viewM = m * this.scale;
@@ -128,6 +131,7 @@
             ctx.lineTo(viewX, viewY + viewN);
             ctx.lineTo(viewX - viewM_2, viewY);
             ctx.fill();
+            ctx.closePath();
             break;
         case 'right':
             viewM = m * this.scale;
@@ -138,6 +142,7 @@
             ctx.lineTo(viewX, viewY + viewM_2);
             ctx.lineTo(viewX + viewN, viewY);
             ctx.lineTo(viewX, viewY - viewM_2);
+            ctx.closePath();
             break;
         case 'left':
             viewM = m * this.scale;
@@ -148,6 +153,7 @@
             ctx.lineTo(viewX, viewY + viewM_2);
             ctx.lineTo(viewX - viewN, viewY);
             ctx.lineTo(viewX, viewY - viewM_2);
+            ctx.closePath();
             break;
         default:
             break;
