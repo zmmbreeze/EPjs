@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Equation Plotting</title>
+    <style type="text/css">
+canvas {
+    display: block;
+    border: 1px solid #CCC;
+}
+    </style>
 </head>
 <body>
     <h1><strong>Equation Plotting</strong> in Javascript</h1>
@@ -11,14 +17,19 @@
     <div class="demo">
         <input type="text" value="" placeholder="y=x^2">
         <input id="demo" type="button" value="plot it!">
-        <canvas></canvas>
+        <canvas id="canvas" width="320" height="240"></canvas>
     </div>
 
     <script src="src/EP.js"></script>
+    <script src="src/EP.View.js"></script>
+    <script src="src/EP.Coordinator.js"></script>
+    <script src="src/EP.Equation.js"></script>
     <script>
         var demo = document.getElementById('demo');
+        var cvs = document.getElementById('canvas');
+        EP(cvs).update();
         demo.onclick = function() {
-            EP(demo.previousElementSibling.value)
+            EP(cvs)
                 .rendTo(demo.nextElementSibling, true);
         };
     </script>
