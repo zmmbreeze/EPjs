@@ -1,9 +1,38 @@
 /*global EP:true */
 (function(undefined) {
-    var View = EP.View = function(canvas, defaultColor) {
+    var View = EP.View = function(canvas, defaultOpt) {
         this._cvs = canvas;
         this._ctx = canvas.getContext('2d');
-        this.defaultColor = defaultColor || '#4CBF2F';
+        defaultOpt = defaultOpt || {};
+        this.defaultColor = defaultOpt.color || '#4CBF2F';
+        this.defaultPointRadius = defaultOpt.pointRadius || 5;
+    };
+
+    /**
+     * clear this view.
+     *
+     */
+    View.prototype.clear = function() {
+        this._ctx.clearRect(0, 0, this._cvs.width, this._cvs.height);
+    };
+
+    /**
+     * draw point
+     *
+     * @param {object} point center
+     * @param {string} color
+     * @param {number} radius
+     */
+    View.prototype.drawPoint = function(point, color, radius) {
+        point = this.realPointToViewPoint(point);
+        radius = radius || this.defaultPointRadius;
+        color = color || this.defaultColor;
+        this._ctx.fillStyle = color;
+        this._ctx.strokeColor = color;
+        this._ctx.arc(point.x, point.y, radius, 0, 360);
+        this._ctx.stroke();
+        this._ctx.arc(point.x, point.y, radius / 2, 0, 360);
+        this._ctx.fill();
     };
 
     /**
@@ -15,7 +44,7 @@
     View.prototype.drawLine = function(points, color) {
         if (points.length) {
             var ctx = this._ctx;
-            ctx.fillStyle = color || this.defaultColor;
+            ctx.strokeStyle = color || this.defaultColor;
             ctx.beginPath();
             ctx.moveTo(points[0]);
 
@@ -33,13 +62,14 @@
     };
 
     /**
-     *            /\
-     *           /  \
-     *          / |  \
-     *         /  |   \
-     *        /   | n  \
-     *       /    |     \
-     *      -------------
+     *             /\
+     *            /| \
+     *           / |  \
+     *          /  |   \
+     *         /   |    \
+     *        /    | n   \
+     *       /     |      \
+     *      ----------------
      *        m  (center point)
      *
      * @param {object} point real center point {x: 1, y: 2}
