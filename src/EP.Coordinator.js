@@ -6,7 +6,6 @@
     };
 
     Equation.prototype.drawAxes = function() {
-        this._v.drawAxes();
     };
 
     Equation.prototype.remove = function(text) {
@@ -32,7 +31,6 @@
         // draw axes
         if (!this._v.inited) {
             this._v.inited = true;
-            this.drawAxes();
         }
 
         // draw lines

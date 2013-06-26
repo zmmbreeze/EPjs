@@ -7,9 +7,15 @@
         this.defaultAxesColor = defaultOpt.axesColor || '#666';
         this.defaultColor = defaultOpt.color || '#4CBF2F';
         this.defaultPointRadius = defaultOpt.pointRadius || 5;
-        var viewHeight = this.getViewHeight() / 2;
-        var viewWidth = this.getViewWidth() / 2;
-        this.view(-viewWidth, viewWidth, -viewHeight, viewHeight);
+
+        this._scale = 1;
+        this._translateX = this.getViewHeight() / 2;
+        this._translateY = this.getViewWidth() / 2;
+
+        // var viewHeight = this.getViewHeight() / 2;
+        // var viewWidth = this.getViewWidth() / 2;
+        // this.view(-viewWidth, viewWidth, -viewHeight, viewHeight);
+        // this.view(50, 200, 50, 200);
     };
 
     /**
@@ -134,6 +140,7 @@
             ctx.lineTo(viewX, viewY + m_2);
             ctx.lineTo(viewX + n, viewY);
             ctx.lineTo(viewX, viewY - m_2);
+            ctx.fill();
             ctx.closePath();
             break;
         case 'left':
@@ -143,6 +150,7 @@
             ctx.lineTo(viewX, viewY + m_2);
             ctx.lineTo(viewX - n, viewY);
             ctx.lineTo(viewX, viewY - m_2);
+            ctx.fill();
             ctx.closePath();
             break;
         default:
@@ -178,7 +186,7 @@
      */
     View.prototype.view = function(minX, maxX, minY, maxY) {
         if ((maxX - minX <= 0) || (maxY - minY <= 0)) {
-            return;
+            throw new Error('[EPjs] Input error.');
         }
 
         var w = this.getViewWidth();
@@ -202,7 +210,7 @@
         var h = this.getViewHeight();
         if (minY < 0 && maxY > 0) {
             this.scaleY = h / (minY - maxY);
-            this.translateY = minY * this.scaleY;
+            this.translateY = -maxY * this.scaleY;
             this.minY = minY;
             this.maxY = maxY;
         } else if (minY >= 0) {
@@ -216,22 +224,53 @@
             this.minY = minY;
             this.maxY = 0;
         }
+        window.view = this;
 
         this._ctx.transform(this.scaleX, 0, 0, this.scaleY, this.translateX, this.translateY);
     };
 
-    View.prototype.drawAxes = function() {
+    View.prototype.translate = function(x, y) {
+        this._translateX = x;
+        this._translateY = y;
+    };
+
+    View.prototype.scale = function(scale) {
+        this._scale = scale;
+    };
+
+    View.prototype.update = function() {
+        this._ctx.transform(this._scale, 0, 0, -this._scale, this._translateX, this._translateY);
+        this._drawAxes();
+    };
+
+    View.prototype._drawAxes = function(translateX, translateY, scale) {
+        translateX = translateX || this._translateX;
+        translateY = translateY || this._translateY;
+        scale = scale || this._scale;
+
         var axesColor = this.defaultAxesColor;
         this.drawPoint({x: 0, y: 0}, axesColor);
-        this.drawLine([
-            {x: 0, y: this.maxY},
-            {x: 0, y: this.minY}
-        ], axesColor);
-        this.drawLine([
-            {x: this.minX, y: 0},
-            {x: this.maxX, y: 0}
-        ], axesColor);
-        this.drawTriangle({x: 0, y: 0}, 30, 80, axesColor, 'left');
+        var w = this.getViewWidth();
+        var h = this.getViewHeight();
+
+        if (Math.abs(translateY) < h) {
+            var endY = {x: 0, y: h - 10};
+            this.drawLine([
+                {x: 0, y: -translateY},
+                endY
+            ], axesColor);
+            this.drawTriangle(endY, 8, 10, axesColor, 'up');
+        }
+
+        if (Math.abs(translateX) < w) {
+            var endX = {x: this.maxX - 10, y: 0};
+            this.drawLine([
+                {x: this.minX, y: 0},
+                endX
+            ], axesColor);
+            this.drawTriangle(endX, 8, 10, axesColor, 'right');
+        }
+
         // test TODO
         this.drawPoint({x: 100, y: 100}, '#000');
         this.drawPoint({x: -100, y: 100}, 'blue');
