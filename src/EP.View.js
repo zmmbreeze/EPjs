@@ -8,14 +8,16 @@
         this.defaultColor = defaultOpt.color || '#4CBF2F';
         this.defaultPointRadius = defaultOpt.pointRadius || 5;
 
-        this._scale = 1;
-        this._translateX = this.getViewHeight() / 2;
-        this._translateY = this.getViewWidth() / 2;
+        this._scale = 0.5;
+        this._translateX = this.getViewWidth() / 2;
+        this._translateY = this.getViewHeight() / 2;
 
         // var viewHeight = this.getViewHeight() / 2;
         // var viewWidth = this.getViewWidth() / 2;
         // this.view(-viewWidth, viewWidth, -viewHeight, viewHeight);
         // this.view(50, 200, 50, 200);
+        this.update();
+        this._drawAxes();
     };
 
     /**
@@ -224,7 +226,6 @@
             this.minY = minY;
             this.maxY = 0;
         }
-        window.view = this;
 
         this._ctx.transform(this.scaleX, 0, 0, this.scaleY, this.translateX, this.translateY);
     };
@@ -235,40 +236,57 @@
     };
 
     View.prototype.scale = function(scale) {
-        this._scale = scale;
+        if (scale > 0) {
+            this._scale = scale;
+        }
     };
 
     View.prototype.update = function() {
         this._ctx.transform(this._scale, 0, 0, -this._scale, this._translateX, this._translateY);
-        this._drawAxes();
     };
 
-    View.prototype._drawAxes = function(translateX, translateY, scale) {
-        translateX = translateX || this._translateX;
-        translateY = translateY || this._translateY;
-        scale = scale || this._scale;
+    View.prototype._xC2R = function(x) {
+        return (x - this._translateX) / this._scale;
+    };
+
+    View.prototype._yC2R = function(y) {
+        return (y - this._translateY) / this._scale;
+    };
+
+    View.prototype._lC2R = function(length) {
+        return length / this._scale;
+    };
+
+    View.prototype._drawAxes = function() {
+        window.view = this;
+        var translateX = this._translateX;
+        var translateY = this._translateY;
+        var scale = this._scale;
 
         var axesColor = this.defaultAxesColor;
         this.drawPoint({x: 0, y: 0}, axesColor);
         var w = this.getViewWidth();
         var h = this.getViewHeight();
 
+        var n8 = this._lC2R(8);
+        var n10 = this._lC2R(10);
+
         if (Math.abs(translateY) < h) {
-            var endY = {x: 0, y: h - 10};
+            var endY = {x: 0, y: this._yC2R(h - 10)};
             this.drawLine([
-                {x: 0, y: -translateY},
+                {x: 0, y: this._yC2R(-translateY)},
                 endY
             ], axesColor);
-            this.drawTriangle(endY, 8, 10, axesColor, 'up');
+            this.drawTriangle(endY, n8, n10, axesColor, 'up');
         }
 
         if (Math.abs(translateX) < w) {
-            var endX = {x: this.maxX - 10, y: 0};
+            var endX = {x: this._xC2R(w - 10), y: 0};
             this.drawLine([
-                {x: this.minX, y: 0},
+                {x: this._xC2R(-translateX), y: 0},
                 endX
             ], axesColor);
-            this.drawTriangle(endX, 8, 10, axesColor, 'right');
+            this.drawTriangle(endX, n8, n10, axesColor, 'right');
         }
 
         // test TODO
